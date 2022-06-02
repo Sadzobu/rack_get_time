@@ -11,7 +11,7 @@ class App
     when '/time'
       handle_time_request(request)
     else
-      handle_wrong_request
+      response(404, [''])
     end
 
   end
@@ -33,8 +33,4 @@ class App
     end
   end
 
-  def handle_wrong_request
-    response(404, [''])
-  end
-  
 end
