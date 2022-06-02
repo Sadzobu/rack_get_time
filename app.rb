@@ -18,19 +18,23 @@ class App
 
   private
 
+  def response(status, body)
+    Rack::Response.new(body, status, CONTENT_TYPE).finish
+  end
+
   def handle_time_request(request)
     time_formatter = TimeFormatter.new(Rack::Utils.parse_query(request.query_string)['format'])
     time_formatter.call
 
     if time_formatter.valid_format?
-      Rack::Response.new(["#{time_formatter.time}\n"], 200, CONTENT_TYPE).finish
+      response(200, ["#{time_formatter.time}\n"])
     else
-      Rack::Response.new(["Unknown time format #{time_formatter.wrong_params}\n"], 400, CONTENT_TYPE).finish
+      response(400, ["Unknown time format #{time_formatter.wrong_params}\n"])
     end
   end
 
   def handle_wrong_request
-    Rack::Response.new([''], 404, CONTENT_TYPE).finish
+    response(404, [''])
   end
   
 end
