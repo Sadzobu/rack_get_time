@@ -7,12 +7,16 @@ class App
   def call(env)
     @request = Rack::Request.new(env)
 
+    @response = Rack::Response.new([''], 404, CONTENT_TYPE)
+
     case @request.path
     when '/time'
       handle_time_request
     else
       handle_wrong_request
     end
+
+    @response.finish
   end
 
   private
@@ -21,16 +25,16 @@ class App
     time_formatter = TimeFormatter.new(Rack::Utils.parse_query(@request.query_string)['format'])
 
     if time_formatter.valid_format?
-      body = ["#{time_formatter.time}\n"]
-      Rack::Response.new(body, 200, CONTENT_TYPE).finish
+      @response.body = ["#{time_formatter.time}\n"]
+      @response.status = 200
     else
-      body = ["Unknown time format #{time_formatter.wrong_params}\n"]
-      Rack::Response.new(body, 400, CONTENT_TYPE).finish
+      @response.body = ["Unknown time format #{time_formatter.wrong_params}\n"]
+      @response.status = 400
     end
   end
 
   def handle_wrong_request
-    Rack::Response.new([''], 404, CONTENT_TYPE).finish
+    # default response handles this case
   end
   
 end
