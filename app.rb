@@ -5,36 +5,32 @@ class App
   CONTENT_TYPE = { 'Content-Type' => 'text/plain' }.freeze
 
   def call(env)
-    @request = Rack::Request.new(env)
+    request = Rack::Request.new(env)
 
-    @response = Rack::Response.new([''], 404, CONTENT_TYPE)
-
-    case @request.path
+    case request.path
     when '/time'
-      handle_time_request
+      handle_time_request(request)
     else
       handle_wrong_request
     end
 
-    @response.finish
   end
 
   private
 
-  def handle_time_request
-    time_formatter = TimeFormatter.new(Rack::Utils.parse_query(@request.query_string)['format'])
+  def handle_time_request(request)
+    time_formatter = TimeFormatter.new(Rack::Utils.parse_query(request.query_string)['format'])
+    time_formatter.call
 
     if time_formatter.valid_format?
-      @response.body = ["#{time_formatter.time}\n"]
-      @response.status = 200
+      Rack::Response.new(["#{time_formatter.time}\n"], 200, CONTENT_TYPE).finish
     else
-      @response.body = ["Unknown time format #{time_formatter.wrong_params}\n"]
-      @response.status = 400
+      Rack::Response.new(["Unknown time format #{time_formatter.wrong_params}\n"], 400, CONTENT_TYPE).finish
     end
   end
 
   def handle_wrong_request
-    # default response handles this case
+    Rack::Response.new([''], 404, CONTENT_TYPE).finish
   end
   
 end

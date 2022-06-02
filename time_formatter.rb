@@ -8,7 +8,17 @@ class TimeFormatter
     @formats = formats.split(',')
     @wrong_params = []
     @time_format = []
-    parse_formats
+  end
+
+  def call
+
+    @formats.each do |x|
+      if FORMATS.keys.include?(x)
+        @time_format << FORMATS[x]
+      else
+        @wrong_params << x
+      end
+    end
   end
 
   def valid_format?
@@ -19,16 +29,5 @@ class TimeFormatter
     Time.now.strftime(@time_format.join('-'))
   end
 
-  private
-
-  def parse_formats
-    @formats.each do |x|
-      if FORMATS.keys.include?(x)
-        @time_format << FORMATS[x]
-      else
-        @wrong_params << x
-      end
-    end
-  end
 
 end
